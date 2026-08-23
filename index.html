@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hookfabrikken</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{--em950:#022c22;--em900:#064e3b;--em700:#047857;--em600:#059669;--or500:#f97316;--or400:#fb923c;--or600:#ea580c;--or50:#fff7ed;--stone:#f5f5f4;}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--stone);color:var(--em950);line-height:1.5;}
+  header{background:var(--em950);padding:38px 20px 30px;text-align:center;}
+  header .eb{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3em;color:var(--or400);}
+  header h1{margin-top:4px;font-size:38px;font-weight:900;text-transform:uppercase;line-height:1;color:var(--stone);letter-spacing:-.02em;}
+  header p{margin:12px auto 0;max-width:330px;font-size:14px;color:rgba(209,250,229,.7);}
+  main{max-width:480px;margin:0 auto;padding:0 20px 64px;}
+
+  /* Login */
+  .login{max-width:380px;margin:0 auto;padding:40px 20px;}
+  .login .kort{background:#fff;border-radius:16px;padding:24px;box-shadow:0 10px 25px rgba(2,44,34,.08);}
+  .login h2{font-size:18px;font-weight:900;margin-bottom:6px;}
+  .login p{font-size:13.5px;color:rgba(2,44,34,.6);margin-bottom:16px;}
+
+  .modus{display:flex;background:#fff;border-radius:16px;padding:6px;box-shadow:0 10px 25px rgba(2,44,34,.1);margin:-20px 0 20px;}
+  .modus button{flex:1;border:none;background:none;cursor:pointer;border-radius:12px;padding:10px;font-size:14px;font-weight:700;color:rgba(2,44,34,.6);transition:.15s;}
+  .modus button.aktiv{background:var(--or500);color:#fff;}
+
+  .kort{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .rad2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  label.felt{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+  .gruppe{margin-bottom:16px;}
+  input,textarea,select{width:100%;border:2px solid rgba(6,78,59,.2);border-radius:12px;padding:12px 16px;font-size:15px;font-family:inherit;color:var(--em950);background:#fff;resize:vertical;}
+  input::placeholder,textarea::placeholder{color:rgba(6,78,59,.35);}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--or500);}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{border:none;cursor:pointer;border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;background:rgba(6,78,59,.1);color:var(--em950);transition:.15s;}
+  .chip.aktiv{background:var(--em950);color:var(--or400);}
+
+  /* Bilde */
+  .bildeboks{border:2px dashed rgba(6,78,59,.3);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:#fafaf9;}
+  .bildeboks:hover{border-color:var(--or500);background:var(--or50);}
+  .bildeboks p{font-size:13.5px;color:rgba(2,44,34,.55);}
+  .bildeboks strong{color:var(--em700);}
+  .forhandsvis{position:relative;border-radius:14px;overflow:hidden;}
+  .forhandsvis img{width:100%;display:block;max-height:240px;object-fit:cover;}
+  .fjern{position:absolute;top:8px;right:8px;border:none;cursor:pointer;border-radius:999px;width:30px;height:30px;font-size:16px;font-weight:700;background:rgba(2,44,34,.75);color:#fff;line-height:1;}
+
+  .typevalg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
+  .typevalg button{border:2px solid transparent;background:#fff;cursor:pointer;border-radius:12px;padding:12px 8px;text-align:center;}
+  .typevalg button.aktiv{border-color:var(--or500);background:var(--or50);}
+  .typevalg .navn{display:block;font-size:14px;font-weight:900;}
+  .typevalg .sub{display:block;font-size:11px;color:rgba(2,44,34,.5);}
+
+  .seksjonstittel{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}
+  .generer{width:100%;border:none;cursor:pointer;border-radius:16px;padding:16px;font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;background:var(--em950);color:var(--or400);transition:.15s;margin-top:24px;}
+  .generer:hover:not(:disabled){background:var(--em900);}
+  .generer:disabled{background:rgba(2,44,34,.2);color:rgba(2,44,34,.4);cursor:default;}
+  .knapp{width:100%;border:none;cursor:pointer;border-radius:12px;padding:13px;font-size:14px;font-weight:900;text-transform:uppercase;background:var(--em950);color:var(--or400);}
+  .hint{margin-top:8px;text-align:center;font-size:12px;color:rgba(2,44,34,.5);}
+  .feil{margin-top:12px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;font-size:14px;}
+
+  .res{margin-top:32px;}
+  .rkort{background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:12px;}
+  .rhode{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;}
+  .rlabel{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(2,44,34,.6);}
+  .rtekst{white-space:pre-wrap;font-size:15px;line-height:1.6;}
+  .rhash{margin-top:12px;font-size:14px;font-weight:600;color:var(--em700);}
+  .avatarrad{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .avatar{width:28px;height:28px;border-radius:999px;background:var(--em950);color:var(--or400);text-align:center;line-height:28px;font-size:12px;font-weight:900;}
+  .brukernavn{font-size:12px;font-weight:700;}
+  .typetag{margin-left:auto;background:rgba(6,78,59,.1);color:rgba(2,44,34,.6);border-radius:999px;padding:2px 8px;font-size:10px;font-weight:700;text-transform:uppercase;}
+  .hooklinje{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .hooklinje p{font-size:15px;line-height:1.35;}
+  .mer{color:rgba(2,44,34,.4);}
+  .kopier{flex-shrink:0;border:none;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;background:var(--or500);color:#fff;transition:.15s;}
+  .kopier:hover{background:var(--or600);}
+  .kopier.ok{background:var(--em600);}
+  .igjen{width:100%;border:2px solid var(--em950);background:none;cursor:pointer;border-radius:16px;padding:12px;font-size:14px;font-weight:900;text-transform:uppercase;color:var(--em950);margin-top:20px;}
+  .igjen:hover{background:var(--em950);color:var(--or400);}
+  footer{margin-top:44px;text-align:center;font-size:11px;line-height:1.6;color:rgba(2,44,34,.4);}
+  .skjult{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login">
+  <div style="text-align:center;margin-bottom:20px;">
+    <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3em;color:var(--or500);">Fra historie til</p>
+    <h1 style="font-size:34px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;">Scroll-stopper</h1>
+  </div>
+  <div class="kort">
+    <h2>Tilgang</h2>
+    <p>Skriv inn passordet du har fått.</p>
+    <div class="gruppe">
+      <input id="passord" type="password" placeholder="Passord" />
+    </div>
+    <button class="knapp" id="loginBtn">Logg inn</button>
+    <div id="loginFeil" class="feil skjult"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="skjult">
+  <header>
+    <p class="eb">Fra historie til</p>
+    <h1>Scroll-stopper</h1>
+    <p>Fyll inn hvem kunden er og hva de selger. Legg gjerne ved et bilde — da skriver AI-en ut fra det den ser.</p>
+  </header>
+
+  <main>
+    <div class="modus">
+      <button data-modus="personlig" class="aktiv">Personlig merkevare</button>
+      <button data-modus="bedrift">Bedrift</button>
+    </div>
+
+    <section class="kort">
+      <div class="gruppe">
+        <label class="felt">Kunde / prosjekt</label>
+        <input id="kunde" placeholder="F.eks. Fjellsport AS — for å holde orden" />
+      </div>
+
+      <div class="gruppe">
+        <label class="felt" id="lbl-navn">Navn eller alias</label>
+        <input id="navn" placeholder="F.eks. Per, 40" />
+      </div>
+
+      <div id="personfelt">
+        <div class="rad2">
+          <div class="gruppe"><label class="felt">Alder</label><input id="alder" placeholder="40" /></div>
+          <div class="gruppe"><label class="felt">Kjønn (valgfritt)</label><input id="kjonn" placeholder="Mann" /></div>
+        </div>
+      </div>
+
+      <div class="gruppe">
+        <label class="felt" id="lbl-historie">Historie / bakgrunn</label>
+        <textarea id="historie" rows="3" placeholder="F.eks. Trebarnsfar fra Trøndelag som bygger passiv inntekt ved siden av jobb..."></textarea>
+      </div>
+
+      <div class="gruppe">
+        <label class="felt">Hva selges / promoteres? *</label>
+        <textarea id="produkt" rows="3" placeholder="F.eks. friluftsutstyr via Amazon-affiliate"></textarea>
+      </div>
+
+      <div class="gruppe">
+        <label class="felt">Målgruppe</label>
+        <input id="malgruppe" placeholder="F.eks. norske menn 30–50 som liker jakt og fiske" />
+      </div>
+
+      <div class="gruppe">
+        <label class="felt">Bilde (valgfritt)</label>
+        <div id="bildeboks" class="bildeboks">
+          <p><strong>Trykk for å velge bilde</strong><br />AI-en ser bildet og skriver ut fra det</p>
+        </div>
+        <div id="forhandsvis" class="forhandsvis skjult">
+          <img id="bildePreview" alt="Valgt bilde" />
+          <button class="fjern" id="fjernBilde" title="Fjern bilde">×</button>
+        </div>
+        <input type="file" id="bildeInput" accept="image/*" style="display:none" />
+      </div>
+
+      <div class="gruppe"><label class="felt">Plattform</label><div class="chips" id="plattform"></div></div>
+      <div class="gruppe"><label class="felt">Tone</label><div class="chips" id="tone"></div></div>
+      <div class="gruppe" style="margin-bottom:0;"><label class="felt">Språk</label><div class="chips" id="sprak"></div></div>
+    </section>
+
+    <section style="margin-top:24px;">
+      <p class="seksjonstittel">Hva vil du lage?</p>
+      <div class="typevalg" id="typevalg"></div>
+    </section>
+
+    <button class="generer" id="genBtn" disabled>Generer</button>
+    <p class="hint" id="hint">Fyll inn hva som selges for å komme i gang.</p>
+    <div id="feil" class="feil skjult"></div>
+
+    <section class="res skjult" id="res"></section>
+
+    <footer>Husk: merk affiliate-lenker og reklame tydelig. Lov aldri garanterte resultater.</footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+  var passord="";
+  var bilde=null; // {type, data}
+  var type="hooks";
+  var laster=false;
+
+  var profil={modus:"personlig",kunde:"",navn:"",alder:"",kjonn:"",historie:"",produkt:"",malgruppe:"",plattform:"Instagram",tone:"Personlig",sprak:"norsk"};
+
+  try{var l=JSON.parse(localStorage.getItem("hookfab")||"null");if(l)profil=Object.assign(profil,l);}catch(e){}
+  try{var p=sessionStorage.getItem("hookfab_pw");if(p){passord=p;}}catch(e){}
+  function lagre(){try{localStorage.setItem("hookfab",JSON.stringify(profil));}catch(e){}}
+
+  // ---------- LOGIN ----------
+  function visApp(){$("login").classList.add("skjult");$("app").classList.remove("skjult");}
+  $("loginBtn").onclick=function(){
+    var v=$("passord").value.trim();
+    if(!v){$("loginFeil").textContent="Skriv inn passordet.";$("loginFeil").classList.remove("skjult");return;}
+    passord=v;
+    try{sessionStorage.setItem("hookfab_pw",v);}catch(e){}
+    visApp();
+  };
+  $("passord").onkeydown=function(e){if(e.key==="Enter")$("loginBtn").click();};
+  if(passord)visApp();
+
+  // ---------- CHIPS ----------
+  function byggChips(cid,valg,felt){
+    var el=$(cid);el.innerHTML="";
+    valg.forEach(function(v){
+      var b=document.createElement("button");
+      b.className="chip"+(profil[felt]===v?" aktiv":"");
+      b.textContent=v;
+      b.onclick=function(){profil[felt]=v;lagre();
+        Array.prototype.forEach.call(el.children,function(c){c.classList.remove("aktiv");});
+        b.classList.add("aktiv");};
+      el.appendChild(b);
+    });
+  }
+  byggChips("plattform",["Instagram","TikTok","Facebook","LinkedIn"],"plattform");
+  byggChips("tone",["Personlig","Humoristisk","Direkte","Inspirerende"],"tone");
+  byggChips("sprak",["norsk","engelsk"],"sprak");
+
+  // ---------- TYPE ----------
+  var typer=[{id:"hooks",navn:"Hooks",sub:"8 åpningslinjer"},{id:"pitch",navn:"Pitch & bio",sub:"Kort + lang"},{id:"innlegg",navn:"Innlegg",sub:"2 ferdige"}];
+  var tv=$("typevalg");
+  typer.forEach(function(t){
+    var b=document.createElement("button");
+    b.className=(type===t.id?"aktiv":"");
+    b.innerHTML='<span class="navn">'+t.navn+'</span><span class="sub">'+t.sub+'</span>';
+    b.onclick=function(){type=t.id;Array.prototype.forEach.call(tv.children,function(c){c.classList.remove("aktiv");});b.classList.add("aktiv");};
+    tv.appendChild(b);
+  });
+
+  // ---------- FELTER ----------
+  ["kunde","navn","alder","kjonn","historie","produkt","malgruppe"].forEach(function(f){
+    var el=$(f);el.value=profil[f]||"";
+    el.oninput=function(){profil[f]=el.value;lagre();oppdater();};
+  });
+
+  function settModus(m){
+    profil.modus=m;lagre();
+    var b=m==="bedrift";
+    document.querySelectorAll(".modus button").forEach(function(x){x.classList.toggle("aktiv",x.dataset.modus===m);});
+    $("personfelt").classList.toggle("skjult",b);
+    $("lbl-navn").textContent=b?"Bedrift / merkevare":"Navn eller alias";
+    $("navn").placeholder=b?"F.eks. Fjellsport AS":"F.eks. Per, 40";
+    $("lbl-historie").textContent=b?"Historien bak bedriften":"Historie / bakgrunn";
+  }
+  document.querySelectorAll(".modus button").forEach(function(b){b.onclick=function(){settModus(b.dataset.modus);};});
+  settModus(profil.modus);
+
+  function oppdater(){
+    var ok=profil.produkt.trim().length>0&&!laster;
+    $("genBtn").disabled=!ok;
+    $("hint").classList.toggle("skjult",profil.produkt.trim().length>0);
+  }
+  oppdater();
+
+  // ---------- BILDE ----------
+  $("bildeboks").onclick=function(){$("bildeInput").click();};
+  $("bildeInput").onchange=function(e){
+    var f=e.target.files&&e.target.files[0];
+    if(!f)return;
+    if(f.size>4*1024*1024){alert("Bildet er for stort (maks ca 4 MB). Velg et mindre bilde.");return;}
+    var r=new FileReader();
+    r.onload=function(){
+      var d=r.result;
+      bilde={type:f.type,data:d.split(",")[1]};
+      $("bildePreview").src=d;
+      $("forhandsvis").classList.remove("skjult");
+      $("bildeboks").classList.add("skjult");
+    };
+    r.readAsDataURL(f);
+  };
+  $("fjernBilde").onclick=function(){
+    bilde=null;$("bildeInput").value="";
+    $("forhandsvis").classList.add("skjult");
+    $("bildeboks").classList.remove("skjult");
+  };
+
+  // ---------- HJELPERE ----------
+  function stripJson(raw){
+    var c=(raw||"").replace(/```json|```/g,"").trim();
+    try{return JSON.parse(c);}catch(e){}
+    var s=c.indexOf("{"),e2=c.lastIndexOf("}");
+    if(s!==-1&&e2>s)return JSON.parse(c.slice(s,e2+1));
+    throw new Error("Klarte ikke å lese svaret.");
+  }
+  function kopier(t,btn){
+    var d=function(){var o=btn.textContent;btn.textContent="Kopiert ✓";btn.classList.add("ok");setTimeout(function(){btn.textContent=o;btn.classList.remove("ok");},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,d);}
+    else{var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);d();}
+  }
+  function kopierBtn(t){var b=document.createElement("button");b.className="kopier";b.textContent="Kopier";b.onclick=function(){kopier(t,b);};return b;}
+
+  // ---------- RENDER ----------
+  function render(t,data){
+    var w=$("res");w.innerHTML="";w.classList.remove("skjult");
+
+    if(t==="hooks"&&data.hooks){
+      var h=document.createElement("h2");
+      h.style.cssText="font-size:18px;font-weight:900;margin-bottom:4px;";
+      h.textContent="Slik ser de ut i feeden";
+      var p=document.createElement("p");
+      p.style.cssText="font-size:12px;color:rgba(2,44,34,.5);margin-bottom:16px;";
+      p.textContent="Første linje er alt folk ser før «…mer».";
+      w.appendChild(h);w.appendChild(p);
+      var ini=(profil.navn||"D").trim().charAt(0).toUpperCase()||"D";
+      data.hooks.forEach(function(x){
+        var k=document.createElement("div");k.className="rkort";
+        k.innerHTML='<div class="avatarrad"><div class="avatar">'+esc(ini)+'</div><span class="brukernavn">'+esc(profil.navn||"din_konto")+'</span><span class="typetag">'+esc(x.type||"")+'</span></div>';
+        var lin=document.createElement("div");lin.className="hooklinje";
+        var pt=document.createElement("p");pt.innerHTML=esc(x.tekst)+' <span class="mer">…mer</span>';
+        lin.appendChild(pt);lin.appendChild(kopierBtn(x.tekst));
+        k.appendChild(lin);w.appendChild(k);
+      });
+    }
+
+    if(t==="pitch"){
+      [{n:"Bio (til profilen)",t:data.bio},{n:"Kort pitch",t:data.pitch_kort},{n:"Lang pitch",t:data.pitch_lang}].forEach(function(o){
+        if(!o.t)return;
+        var k=document.createElement("div");k.className="rkort";
+        var hd=document.createElement("div");hd.className="rhode";
+        var lb=document.createElement("span");lb.className="rlabel";lb.textContent=o.n;
+        hd.appendChild(lb);hd.appendChild(kopierBtn(o.t));
+        var tx=document.createElement("p");tx.className="rtekst";tx.textContent=o.t;
+        k.appendChild(hd);k.appendChild(tx);w.appendChild(k);
+      });
+    }
+
+    if(t==="innlegg"&&data.innlegg){
+      data.innlegg.forEach(function(inn,i){
+        var hs=inn.hashtags||[];
+        var full=inn.tekst+"\n\n"+hs.join(" ");
+        var k=document.createElement("div");k.className="rkort";
+        var hd=document.createElement("div");hd.className="rhode";
+        var lb=document.createElement("span");lb.className="rlabel";lb.textContent=inn.tittel||("Innlegg "+(i+1));
+        hd.appendChild(lb);hd.appendChild(kopierBtn(full));
+        var tx=document.createElement("p");tx.className="rtekst";tx.textContent=inn.tekst;
+        k.appendChild(hd);k.appendChild(tx);
+        if(hs.length){var ht=document.createElement("p");ht.className="rhash";ht.textContent=hs.join(" ");k.appendChild(ht);}
+        w.appendChild(k);
+      });
+    }
+
+    var ig=document.createElement("button");ig.className="igjen";ig.textContent="Generer nye varianter";
+    ig.onclick=generer;w.appendChild(ig);
+  }
+
+  // ---------- GENERER ----------
+  function generer(){
+    if(laster||!profil.produkt.trim())return;
+    laster=true;oppdater();
+    $("genBtn").textContent="Skriver…";
+    $("feil").classList.add("skjult");
+    $("res").classList.add("skjult");
+
+    fetch("/api/generate",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({passord:passord,profil:profil,type:type,bilde:bilde})
+    })
+    .then(function(r){
+      if(r.status===401){throw new Error("passord");}
+      if(!r.ok)throw new Error("server");
+      return r.json();
+    })
+    .then(function(d){
+      if(d.error)throw new Error("server");
+      render(type,stripJson(d.tekst));
+    })
+    .catch(function(e){
+      var f=$("feil");
+      if(e.message==="passord"){
+        f.textContent="Feil passord. Last siden på nytt og prøv igjen.";
+        try{sessionStorage.removeItem("hookfab_pw");}catch(x){}
+      } else {
+        f.textContent="Noe gikk galt under genereringen. Prøv igjen.";
+      }
+      f.classList.remove("skjult");
+    })
+    .then(function(){laster=false;oppdater();$("genBtn").textContent="Generer";});
+  }
+  $("genBtn").onclick=generer;
+})();
+</script>
+</body>
+</html>
