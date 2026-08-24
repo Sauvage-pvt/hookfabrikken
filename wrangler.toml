@@ -1,0 +1,8 @@
+name = "hookfabrikken"
+main = "src/index.js"
+compatibility_date = "2026-08-24"
+
+[assets]
+directory = "./"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
