@@ -1,8 +1,8 @@
-// Cloudflare Pages Function â kjÃ¸rer pÃ¥ /api/generate
-// Holder API-nÃ¸kkelen trygt pÃ¥ serveren og sjekker tilgangskode.
+// Cloudflare Pages Function — kjører på /api/generate
+// Holder API-nøkkelen trygt på serveren og sjekker tilgangskode.
 //
-// MiljÃ¸variabler i Cloudflare (Settings -> Variables):
-//   ANTHROPIC_API_KEY = nÃ¸kkelen din fra console.anthropic.com  (Secret!)
+// Miljøvariabler i Cloudflare (Settings -> Variables):
+//   ANTHROPIC_API_KEY = nøkkelen din fra console.anthropic.com  (Secret!)
 //   APP_PASSWORD      = ditt eget hovedpassord                  (Secret!)
 //   KODER             = GR-01,GR-02,GR-03,GR-04,GR-05,GR-06,GR-07,GR-08,GR-09,GR-10
 //
@@ -20,17 +20,17 @@ function byggPrompt(p, t, harBilde) {
 - Bedrift/merkevare: ${p.navn || "ikke oppgitt"}
 - Bransje/hva de selger: ${p.produkt || "ikke oppgitt"}
 - Historie/bakgrunn: ${p.historie || "ikke oppgitt"}
-- MÃ¥lgruppe: ${p.malgruppe || "ikke oppgitt"}`
+- Målgruppe: ${p.malgruppe || "ikke oppgitt"}`
     : `PERSONPROFIL:
 - Navn/alias: ${p.navn || "ikke oppgitt"}
 - Alder: ${p.alder || "ikke oppgitt"}
-- KjÃ¸nn: ${p.kjonn || "ikke oppgitt"}
+- Kjønn: ${p.kjonn || "ikke oppgitt"}
 - Bakgrunn/historie: ${p.historie || "ikke oppgitt"}
 - Hva selges/promoteres: ${p.produkt || "ikke oppgitt"}
-- MÃ¥lgruppe: ${p.malgruppe || "ikke oppgitt"}`;
+- Målgruppe: ${p.malgruppe || "ikke oppgitt"}`;
 
   const bildeRegel = harBilde
-    ? `\n- Du har fÃ¥tt et bilde. Ta utgangspunkt i det du FAKTISK ser i bildet â konkrete detaljer,
+    ? `\n- Du har fått et bilde. Ta utgangspunkt i det du FAKTISK ser i bildet — konkrete detaljer,
 stemning, farger, motiv. Ikke skriv generisk tekst som kunne passet et hvilket som helst bilde.`
     : "";
 
@@ -39,38 +39,38 @@ stemning, farger, motiv. Ikke skriv generisk tekst som kunne passet et hvilket s
 ${profilTekst}
 - Plattform: ${p.plattform}
 - Tone: ${p.tone}
-- SprÃ¥k: ${p.sprak}
+- Språk: ${p.sprak}
 
 Regler:
-- Skriv pÃ¥ ${p.sprak === "engelsk" ? "engelsk" : "norsk (bokmÃ¥l)"}.
-- VÃ¦r konkret og personlig, aldri generisk. Bruk detaljer fra profilen.
-- Ingen overdrevne lÃ¸fter om inntekt eller resultater. Ãrlig og troverdig.${bildeRegel}
+- Skriv på ${p.sprak === "engelsk" ? "engelsk" : "norsk (bokmål)"}.
+- Vær konkret og personlig, aldri generisk. Bruk detaljer fra profilen.
+- Ingen overdrevne løfter om inntekt eller resultater. Ærlig og troverdig.${bildeRegel}
 - Svar KUN med gyldig JSON. Ingen forklaring, ingen markdown, ingen backticks.`;
 
   const prompts = {
     hooks: `${felles}
 
-Lag 8 scroll-stoppende hooks (fÃ¸rste linje i et innlegg) for ${p.plattform}.
-Varier mellom: nysgjerrighet, tall/konkret, kontrast, personlig historie, spÃ¸rsmÃ¥l.
+Lag 8 scroll-stoppende hooks (første linje i et innlegg) for ${p.plattform}.
+Varier mellom: nysgjerrighet, tall/konkret, kontrast, personlig historie, spørsmål.
 JSON-format: {"hooks":[{"tekst":"...","type":"nysgjerrighet"}]}`,
 
     pitch: `${felles}
 
-Lag: 1) en bio (maks 150 tegn), 2) en kort pitch pÃ¥ 1-2 setninger,
-3) en lengre pitch pÃ¥ ca 4 setninger som forteller historien og hvorfor folk bÃ¸r fÃ¸lge/kjÃ¸pe.
+Lag: 1) en bio (maks 150 tegn), 2) en kort pitch på 1-2 setninger,
+3) en lengre pitch på ca 4 setninger som forteller historien og hvorfor folk bør følge/kjøpe.
 JSON-format: {"bio":"...","pitch_kort":"...","pitch_lang":"..."}`,
 
     innlegg: `${felles}
 
 Lag 2 komplette ${p.plattform}-innlegg klare til publisering. Hvert innlegg: sterk hook som
-fÃ¸rste linje, kropp med historie/verdi, tydelig CTA til slutt, og 5 relevante hashtags.
+første linje, kropp med historie/verdi, tydelig CTA til slutt, og 5 relevante hashtags.
 JSON-format: {"innlegg":[{"tittel":"kort intern tittel","tekst":"hele innlegget med linjeskift","hashtags":["#..."]}]}`,
   };
 
   return prompts[t];
 }
 
-// --- Tilgangskontroll + mÃ¥ling -----------------------------------
+// --- Tilgangskontroll + måling -----------------------------------
 
 async function sjekkTilgang(body, env) {
   const inn = (body.passord || "").trim();
@@ -88,7 +88,7 @@ async function sjekkTilgang(body, env) {
 
   if (!gyldige.includes(kode)) return { ok: false };
 
-  // Tell bruken hvis KV er koblet pÃ¥
+  // Tell bruken hvis KV er koblet på
   if (env.BRUK) {
     try {
       const nokkel = "kode:" + kode;
@@ -102,7 +102,7 @@ async function sjekkTilgang(body, env) {
       if (!d.dager.includes(dag)) d.dager.push(dag);
       await env.BRUK.put(nokkel, JSON.stringify(d));
     } catch (e) {
-      // mÃ¥ling skal aldri stoppe genereringen
+      // måling skal aldri stoppe genereringen
     }
   }
 
@@ -119,14 +119,14 @@ export async function onRequestPost({ request, env }) {
     });
 
   if (!env.ANTHROPIC_API_KEY) {
-    return svar({ error: "Mangler ANTHROPIC_API_KEY pÃ¥ serveren." }, 500);
+    return svar({ error: "Mangler ANTHROPIC_API_KEY på serveren." }, 500);
   }
 
   let body;
   try {
     body = await request.json();
   } catch {
-    return svar({ error: "Ugyldig forespÃ¸rsel." }, 400);
+    return svar({ error: "Ugyldig forespørsel." }, 400);
   }
 
   const tilgang = await sjekkTilgang(body, env);
