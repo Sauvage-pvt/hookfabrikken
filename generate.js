@@ -1,9 +1,14 @@
 // Cloudflare Pages Function — kjører på /api/generate
-// Holder API-nøkkelen trygt på serveren og sjekker passord.
+// Holder API-nøkkelen trygt på serveren og sjekker tilgangskode.
 //
-// Miljøvariabler du setter i Cloudflare (Settings -> Variables):
-//   ANTHROPIC_API_KEY  = nøkkelen din fra console.anthropic.com  (Secret!)
-//   APP_PASSWORD       = passordet brukerne må skrive inn        (Secret!)
+// Miljøvariabler i Cloudflare (Settings -> Variables):
+//   ANTHROPIC_API_KEY = nøkkelen din fra console.anthropic.com (Secret!)
+//   APP_PASSWORD      = ditt eget hovedpassord (Secret!)
+//   KODER             = GR-01,GR-02,GR-03,GR-04,GR-05,GR-06,GR-07,GR-08,GR-09,GR-10
+//
+// KV-binding (Settings -> Functions -> KV namespace bindings):
+//   BRUK = hookfabrikken-bruk
+// Uten BRUK fungerer alt, men da telles ikke bruken.
 
 const MODELL = "claude-haiku-4-5-20251001"; // billigst. Bytt til "claude-sonnet-5" for bedre copy.
 
@@ -30,6 +35,7 @@ function byggPrompt(p, t, harBilde) {
     : "";
 
   const felles = `Du er en erfaren norsk SoMe-copywriter som skriver innhold som konverterer.
+
 ${profilTekst}
 - Plattform: ${p.plattform}
 - Tone: ${p.tone}
@@ -64,6 +70,47 @@ JSON-format: {"innlegg":[{"tittel":"kort intern tittel","tekst":"hele innlegget 
   return prompts[t];
 }
 
+// --- Tilgangskontroll + måling -----------------------------------
+
+async function sjekkTilgang(body, env) {
+  const inn = (body.passord || "").trim();
+
+  // Ditt eget hovedpassord: alltid inn, telles ikke
+  if (env.APP_PASSWORD && inn === env.APP_PASSWORD) {
+    return { ok: true, kode: "EIER" };
+  }
+
+  const kode = inn.toUpperCase();
+  const gyldige = (env.KODER || "")
+    .split(",")
+    .map((k) => k.trim().toUpperCase())
+    .filter(Boolean);
+
+  if (!gyldige.includes(kode)) return { ok: false };
+
+  // Tell bruken hvis KV er koblet på
+  if (env.BRUK) {
+    try {
+      const nokkel = "kode:" + kode;
+      const d = JSON.parse((await env.BRUK.get(nokkel)) || "{}");
+      const na = new Date().toISOString();
+      d.bruk = (d.bruk || 0) + 1;
+      d.sist = na;
+      if (!d.forste) d.forste = na;
+      d.dager = d.dager || [];
+      const dag = na.slice(0, 10);
+      if (!d.dager.includes(dag)) d.dager.push(dag);
+      await env.BRUK.put(nokkel, JSON.stringify(d));
+    } catch (e) {
+      // måling skal aldri stoppe genereringen
+    }
+  }
+
+  return { ok: true, kode };
+}
+
+// --- Hovedfunksjon -----------------------------------------------
+
 export async function onRequestPost({ request, env }) {
   const svar = (obj, status = 200) =>
     new Response(JSON.stringify(obj), {
@@ -82,9 +129,9 @@ export async function onRequestPost({ request, env }) {
     return svar({ error: "Ugyldig forespørsel." }, 400);
   }
 
-  // --- Passordsjekk ---
-  if (env.APP_PASSWORD && body.passord !== env.APP_PASSWORD) {
-    return svar({ error: "Feil passord." }, 401);
+  const tilgang = await sjekkTilgang(body, env);
+  if (!tilgang.ok) {
+    return svar({ error: "Feil kode." }, 401);
   }
 
   const { profil, type, bilde } = body;
@@ -92,7 +139,6 @@ export async function onRequestPost({ request, env }) {
   const prompt = byggPrompt(profil || {}, type, harBilde);
   if (!prompt) return svar({ error: "Ukjent type." }, 400);
 
-  // --- Bygg meldingen (med bilde hvis det finnes) ---
   const innhold = [];
   if (harBilde) {
     innhold.push({
