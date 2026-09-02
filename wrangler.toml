@@ -10,3 +10,6 @@ run_worker_first = ["/api/*"]
 [[kv_namespaces]]
 binding = "BRUK"
 id = "d58db6f2dc704e73a2b058d5b2922b1b"
+
+[vars]
+KODER = "GR-01,GR-02,GR-03,GR-04,GR-05,GR-06,GR-07,GR-08,GR-09,GR-10"
