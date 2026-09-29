@@ -82,6 +82,13 @@
   .faner button{flex:1;border:none;background:none;cursor:pointer;border-radius:12px;padding:10px 6px;font-size:14px;font-weight:800;color:rgba(2,44,34,.6);transition:.15s;}
   .faner button.aktiv{background:var(--em950);color:var(--or400);}
   .faner small{display:block;font-size:11px;font-weight:600;opacity:.75;}
+  .faner button.info{flex:0 0 64px;}
+  .infotekst h3{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 6px;}
+  .infotekst h3:first-child{margin-top:0;}
+  .infotekst p,.infotekst li{font-size:14px;line-height:1.55;color:rgba(2,44,34,.8);}
+  .infotekst ul{padding-left:18px;}
+  .infotekst li{margin-bottom:4px;}
+  .infotekst .slett{margin-top:12px;background:none;border:2px solid #b91c1c;color:#b91c1c;}
   .modus{box-shadow:none;background:rgba(6,78,59,.08);}
   .brief{font-size:13px;color:rgba(2,44,34,.65);background:var(--or50);border-radius:12px;padding:10px 14px;margin-bottom:16px;}
   .brief a,.lenke{color:var(--em700);font-weight:700;cursor:pointer;text-decoration:underline;}
@@ -108,6 +115,7 @@
   <div class="faner">
     <button data-fane="rask" class="aktiv">1 · Rask start<small>Produkt + bilde</small></button>
     <button data-fane="skarp">2 · Gjør skarpere<small>Historie, målgruppe, tone</small></button>
+    <button data-fane="info" class="info" title="Slik virker den">ⓘ Info</button>
   </div>
 
   <!-- FANE 1: RASK START -->
@@ -178,7 +186,44 @@
     </section>
   </div>
 
+  <!-- FANE 3: INFO -->
+  <section id="fane-info" class="kort infotekst skjult">
+    <h3>Hva den gjør</h3>
+    <p>Skriv hva som selges og legg gjerne ved et bilde. Hookfabrikken lager 8 åpningslinjer («hooks»)
+      som skal få folk til å stoppe scrollen, og skriver én setning under hver om <i>hvorfor</i> den virker:
+      nysgjerrighet, kontrast, konkret tall, personlig historie eller spørsmål.</p>
+    <p style="margin-top:8px;">Under <b>Gjør skarpere</b> kan du legge til historie, målgruppe, tone og plattform,
+      og lage bio, pitch og ferdige innlegg.</p>
+
+    <h3>Den lærer stemmen</h3>
+    <p>Hver gang du trykker «Kopier» på en hook, husker den linjen. Neste gang skrives nye hooks i samme stemme,
+      og flest av typene du faktisk velger. Minnet holdes per kunde: fyll inn «Kunde / prosjekt» under
+      Gjør skarpere, ellers havner alt i én felles bunke.</p>
+
+    <h3>Hva som lagres — og hvor</h3>
+    <ul>
+      <li><b>På denne enheten (i nettleseren):</b> tilgangskoden, feltene du har fylt inn, sist valgte fane,
+        og de siste 12 kopierte hookene per kunde.</li>
+      <li><b>Hos oss (på serveren):</b> kun tellere per tilgangskode — antall kjøringer, hvilke dager,
+        antall kopierte hooks og hvilke hook-typer. <i>Ikke</i> tekst, produkt, kundenavn eller bilder.</li>
+      <li><b>Sendes videre ved hver kjøring:</b> feltene, bildet og de huskede hookene sendes til
+        AI-tjenesten (Anthropic) for å skrive teksten. Hookfabrikken tar ikke vare på dem etterpå.</li>
+    </ul>
+
+    <h3>Obs</h3>
+    <ul>
+      <li>Minnet følger nettleseren, ikke deg. Ny telefon, annen nettleser eller tømte nettleserdata = blanke ark.</li>
+      <li>Ikke last opp bilder av personer uten samtykke, eller noe med sensitive opplysninger.</li>
+      <li>AI-en kan ta feil. Sjekk fakta, tall og påstander før du publiserer — den vet ikke mer om produktet enn det du skriver.</li>
+      <li>Merk reklame og affiliate-lenker tydelig. Lov aldri garanterte resultater.</li>
+      <li>Tilgangskoden er personlig. Ikke del lenken med <code>?kode=</code> offentlig.</li>
+    </ul>
+
+    <button class="knapp slett" id="slettAlt">Slett alt lagret på denne enheten</button>
+  </section>
+
   <!-- Tilgangskode vises bare når den trengs -->
+  <div id="arbeid">
   <div id="kodeboks" class="kort kodeboks skjult">
     <p id="kodeTekst">Skriv inn tilgangskoden du har fått — den huskes på denne enheten.</p>
     <input id="kode" placeholder="F.eks. GR-01" autocomplete="off" autocapitalize="characters" />
@@ -190,6 +235,7 @@
   <div id="feil" class="feil skjult"></div>
 
   <section class="res skjult" id="res"></section>
+  </div>
 
   <footer>Husk: merk affiliate-lenker og reklame tydelig. Lov aldri garanterte resultater.</footer>
 </main>
@@ -203,7 +249,7 @@
 
   var bilde=null; // {type, data}
   var type="hooks";
-  var fane=les("hookfab_fane")==="skarp"?"skarp":"rask";
+  var fane=["skarp","info"].indexOf(les("hookfab_fane"))!==-1?les("hookfab_fane"):"rask";
   var laster=false;
 
   var profil={modus:"personlig",kunde:"",navn:"",alder:"",kjonn:"",historie:"",produkt:"",malgruppe:"",plattform:"Instagram",tone:"Personlig",sprak:"norsk"};
@@ -262,6 +308,8 @@
     document.querySelectorAll(".faner button").forEach(function(x){x.classList.toggle("aktiv",x.dataset.fane===f);});
     $("fane-rask").classList.toggle("skjult",f!=="rask");
     $("fane-skarp").classList.toggle("skjult",f!=="skarp");
+    $("fane-info").classList.toggle("skjult",f!=="info");
+    $("arbeid").classList.toggle("skjult",f==="info");
     oppdater();
   }
   document.querySelectorAll(".faner button").forEach(function(b){b.onclick=function(){settFane(b.dataset.fane);};});
@@ -470,6 +518,13 @@
     .then(function(){laster=false;oppdater();});
   }
   $("genBtn").onclick=generer;
+
+  $("slettAlt").onclick=function(){
+    if(!confirm("Slette tilgangskode, utfylte felt og husket stemme for alle kunder på denne enheten?"))return;
+    ["hookfab","hookfab_kode","hookfab_fane","hookfab_stemme"].forEach(function(k){skriv(k,null);});
+    try{sessionStorage.removeItem("hookfab_pw");}catch(e){}
+    location.reload();
+  };
 
   settFane(fane);
   visStemme();
