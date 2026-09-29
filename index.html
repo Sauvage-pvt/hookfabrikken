@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Hookfabrikken</title>
+<meta name="description" content="Skriv hva du selger, legg ved et bilde, få 8 scroll-stoppende hooks — med forklaring på hvorfor hver av dem virker." />
+<meta property="og:title" content="Hookfabrikken" />
+<meta property="og:description" content="Fra produkt og bilde til 8 scroll-stoppende hooks." />
+<meta name="theme-color" content="#022c22" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23022c22'/%3E%3Cpath d='M20 7v11a6 6 0 1 1-12 0' fill='none' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E" />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root{--em950:#022c22;--em900:#064e3b;--em700:#047857;--em600:#059669;--or500:#f97316;--or400:#fb923c;--or600:#ea580c;--or50:#fff7ed;--stone:#f5f5f4;}
@@ -14,13 +19,7 @@
   header p{margin:12px auto 0;max-width:330px;font-size:14px;color:rgba(209,250,229,.7);}
   main{max-width:480px;margin:0 auto;padding:0 20px 64px;}
 
-  /* Login */
-  .login{max-width:380px;margin:0 auto;padding:40px 20px;}
-  .login .kort{background:#fff;border-radius:16px;padding:24px;box-shadow:0 10px 25px rgba(2,44,34,.08);}
-  .login h2{font-size:18px;font-weight:900;margin-bottom:6px;}
-  .login p{font-size:13.5px;color:rgba(2,44,34,.6);margin-bottom:16px;}
-
-  .modus{display:flex;background:#fff;border-radius:16px;padding:6px;box-shadow:0 10px 25px rgba(2,44,34,.1);margin:-20px 0 20px;}
+  .modus{display:flex;background:#fff;border-radius:16px;padding:6px;box-shadow:0 10px 25px rgba(2,44,34,.1);margin:0 0 16px;}
   .modus button{flex:1;border:none;background:none;cursor:pointer;border-radius:12px;padding:10px;font-size:14px;font-weight:700;color:rgba(2,44,34,.6);transition:.15s;}
   .modus button.aktiv{background:var(--or500);color:#fff;}
 
@@ -78,46 +77,72 @@
   .igjen{width:100%;border:2px solid var(--em950);background:none;cursor:pointer;border-radius:16px;padding:12px;font-size:14px;font-weight:900;text-transform:uppercase;color:var(--em950);margin-top:20px;}
   .igjen:hover{background:var(--em950);color:var(--or400);}
   footer{margin-top:44px;text-align:center;font-size:11px;line-height:1.6;color:rgba(2,44,34,.4);}
+  /* Faner */
+  .faner{display:flex;background:#fff;border-radius:16px;padding:6px;box-shadow:0 10px 25px rgba(2,44,34,.1);margin:-20px 0 20px;}
+  .faner button{flex:1;border:none;background:none;cursor:pointer;border-radius:12px;padding:10px 6px;font-size:14px;font-weight:800;color:rgba(2,44,34,.6);transition:.15s;}
+  .faner button.aktiv{background:var(--em950);color:var(--or400);}
+  .faner small{display:block;font-size:11px;font-weight:600;opacity:.75;}
+  .modus{box-shadow:none;background:rgba(6,78,59,.08);}
+  .brief{font-size:13px;color:rgba(2,44,34,.65);background:var(--or50);border-radius:12px;padding:10px 14px;margin-bottom:16px;}
+  .brief a,.lenke{color:var(--em700);font-weight:700;cursor:pointer;text-decoration:underline;}
+  .mekanisme{margin-top:8px;font-size:12.5px;line-height:1.4;color:rgba(2,44,34,.55);}
+  .mekanisme b{color:var(--em700);font-weight:700;}
+  .stemme{margin-top:10px;text-align:center;font-size:12px;color:rgba(2,44,34,.55);}
+  .kodeboks{margin-top:16px;}
+  .kodeboks p{font-size:13px;color:rgba(2,44,34,.6);margin-bottom:8px;}
+  .skarpere{background:var(--em950);color:var(--stone);border-radius:16px;padding:16px;margin-top:8px;cursor:pointer;}
+  .skarpere b{color:var(--or400);}
+  .skarpere p{font-size:13px;color:rgba(209,250,229,.75);margin-top:2px;}
   .skjult{display:none!important;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="login">
-  <div style="text-align:center;margin-bottom:20px;">
-    <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3em;color:var(--or500);">Fra historie til</p>
-    <h1 style="font-size:34px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;">Scroll-stopper</h1>
+<header>
+  <p class="eb">Hookfabrikken</p>
+  <h1>Scroll-stopper</h1>
+  <p>Skriv hva som selges, legg ved et bilde — få 8 hooks. Alt annet er valgfritt og gjør dem bare skarpere.</p>
+</header>
+
+<main>
+  <div class="faner">
+    <button data-fane="rask" class="aktiv">1 · Rask start<small>Produkt + bilde</small></button>
+    <button data-fane="skarp">2 · Gjør skarpere<small>Historie, målgruppe, tone</small></button>
   </div>
-  <div class="kort">
-    <h2>Tilgang</h2>
-    <p>Skriv inn passordet du har fått.</p>
+
+  <!-- FANE 1: RASK START -->
+  <section class="kort" id="fane-rask">
     <div class="gruppe">
-      <input id="passord" type="password" placeholder="Passord" />
+      <label class="felt">Hva selges / promoteres? *</label>
+      <textarea id="produkt" rows="3" placeholder="F.eks. håndlaget ullgenser strikket i Setesdal"></textarea>
     </div>
-    <button class="knapp" id="loginBtn">Logg inn</button>
-    <div id="loginFeil" class="feil skjult"></div>
-  </div>
-</div>
 
-<!-- APP -->
-<div id="app" class="skjult">
-  <header>
-    <p class="eb">Fra historie til</p>
-    <h1>Scroll-stopper</h1>
-    <p>Fyll inn hvem kunden er og hva de selger. Legg gjerne ved et bilde — da skriver AI-en ut fra det den ser.</p>
-  </header>
-
-  <main>
-    <div class="modus">
-      <button data-modus="personlig" class="aktiv">Personlig merkevare</button>
-      <button data-modus="bedrift">Bedrift</button>
+    <div class="gruppe" style="margin-bottom:0;">
+      <label class="felt">Bilde (anbefalt)</label>
+      <div id="bildeboks" class="bildeboks">
+        <p><strong>Trykk for å velge bilde</strong><br />AI-en ser bildet og skriver ut fra det</p>
+      </div>
+      <div id="forhandsvis" class="forhandsvis skjult">
+        <img id="bildePreview" alt="Valgt bilde" />
+        <button class="fjern" id="fjernBilde" title="Fjern bilde">×</button>
+      </div>
+      <input type="file" id="bildeInput" accept="image/*" style="display:none" />
     </div>
+  </section>
+
+  <!-- FANE 2: GJØR SKARPERE -->
+  <div id="fane-skarp" class="skjult">
+    <p class="brief" id="briefLinje"></p>
 
     <section class="kort">
+      <div class="modus">
+        <button data-modus="personlig" class="aktiv">Personlig merkevare</button>
+        <button data-modus="bedrift">Bedrift</button>
+      </div>
+
       <div class="gruppe">
         <label class="felt">Kunde / prosjekt</label>
-        <input id="kunde" placeholder="F.eks. Fjellsport AS — for å holde orden" />
+        <input id="kunde" placeholder="F.eks. Fjellsport AS — stemmen huskes per kunde" />
       </div>
 
       <div class="gruppe">
@@ -138,25 +163,8 @@
       </div>
 
       <div class="gruppe">
-        <label class="felt">Hva selges / promoteres? *</label>
-        <textarea id="produkt" rows="3" placeholder="F.eks. friluftsutstyr via Amazon-affiliate"></textarea>
-      </div>
-
-      <div class="gruppe">
         <label class="felt">Målgruppe</label>
         <input id="malgruppe" placeholder="F.eks. norske menn 30–50 som liker jakt og fiske" />
-      </div>
-
-      <div class="gruppe">
-        <label class="felt">Bilde (valgfritt)</label>
-        <div id="bildeboks" class="bildeboks">
-          <p><strong>Trykk for å velge bilde</strong><br />AI-en ser bildet og skriver ut fra det</p>
-        </div>
-        <div id="forhandsvis" class="forhandsvis skjult">
-          <img id="bildePreview" alt="Valgt bilde" />
-          <button class="fjern" id="fjernBilde" title="Fjern bilde">×</button>
-        </div>
-        <input type="file" id="bildeInput" accept="image/*" style="display:none" />
       </div>
 
       <div class="gruppe"><label class="felt">Plattform</label><div class="chips" id="plattform"></div></div>
@@ -168,44 +176,96 @@
       <p class="seksjonstittel">Hva vil du lage?</p>
       <div class="typevalg" id="typevalg"></div>
     </section>
+  </div>
 
-    <button class="generer" id="genBtn" disabled>Generer</button>
-    <p class="hint" id="hint">Fyll inn hva som selges for å komme i gang.</p>
-    <div id="feil" class="feil skjult"></div>
+  <!-- Tilgangskode vises bare når den trengs -->
+  <div id="kodeboks" class="kort kodeboks skjult">
+    <p id="kodeTekst">Skriv inn tilgangskoden du har fått — den huskes på denne enheten.</p>
+    <input id="kode" placeholder="F.eks. GR-01" autocomplete="off" autocapitalize="characters" />
+  </div>
 
-    <section class="res skjult" id="res"></section>
+  <button class="generer" id="genBtn" disabled>Lag 8 hooks</button>
+  <p class="hint" id="hint">Skriv hva som selges for å komme i gang.</p>
+  <p class="stemme skjult" id="stemmeInfo"></p>
+  <div id="feil" class="feil skjult"></div>
 
-    <footer>Husk: merk affiliate-lenker og reklame tydelig. Lov aldri garanterte resultater.</footer>
-  </main>
-</div>
+  <section class="res skjult" id="res"></section>
+
+  <footer>Husk: merk affiliate-lenker og reklame tydelig. Lov aldri garanterte resultater.</footer>
+</main>
 
 <script>
 (function(){
   var $=function(id){return document.getElementById(id);};
   function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function les(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+  function skriv(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 
-  var passord="";
   var bilde=null; // {type, data}
   var type="hooks";
+  var fane=les("hookfab_fane")==="skarp"?"skarp":"rask";
   var laster=false;
 
   var profil={modus:"personlig",kunde:"",navn:"",alder:"",kjonn:"",historie:"",produkt:"",malgruppe:"",plattform:"Instagram",tone:"Personlig",sprak:"norsk"};
+  try{var l=JSON.parse(les("hookfab")||"null");if(l)profil=Object.assign(profil,l);}catch(e){}
+  function lagre(){skriv("hookfab",JSON.stringify(profil));}
 
-  try{var l=JSON.parse(localStorage.getItem("hookfab")||"null");if(l)profil=Object.assign(profil,l);}catch(e){}
-  try{var p=sessionStorage.getItem("hookfab_pw");if(p){passord=p;}}catch(e){}
-  function lagre(){try{localStorage.setItem("hookfab",JSON.stringify(profil));}catch(e){}}
+  // ---------- TILGANG ----------
+  // Ingen innloggingsside: koden kan komme fra lenken (?kode=GR-01), fra
+  // tidligere besøk, eller spørres om rett over knappen første gang.
+  var kode=les("hookfab_kode")||"";
+  try{if(!kode){var gammel=sessionStorage.getItem("hookfab_pw");if(gammel){kode=gammel;skriv("hookfab_kode",kode);}}}catch(e){}
+  (function(){
+    var u=new URL(location.href),k=u.searchParams.get("kode");
+    if(k){kode=k.trim();skriv("hookfab_kode",kode);u.searchParams.delete("kode");history.replaceState(null,"",u.pathname+u.search+u.hash);}
+  })();
+  function visKodeboks(tekst){
+    if(tekst)$("kodeTekst").textContent=tekst;
+    $("kodeboks").classList.remove("skjult");
+  }
+  $("kode").oninput=function(){kode=$("kode").value.trim();oppdater();};
+  $("kode").onkeydown=function(e){if(e.key==="Enter")generer();};
+  if(!kode)visKodeboks();
 
-  // ---------- LOGIN ----------
-  function visApp(){$("login").classList.add("skjult");$("app").classList.remove("skjult");}
-  $("loginBtn").onclick=function(){
-    var v=$("passord").value.trim();
-    if(!v){$("loginFeil").textContent="Skriv inn passordet.";$("loginFeil").classList.remove("skjult");return;}
-    passord=v;
-    try{sessionStorage.setItem("hookfab_pw",v);}catch(e){}
-    visApp();
-  };
-  $("passord").onkeydown=function(e){if(e.key==="Enter")$("loginBtn").click();};
-  if(passord)visApp();
+  // ---------- STEMME-MINNE ----------
+  // Hooks kunden faktisk kopierer lagres per kunde og sendes med neste kjøring,
+  // så modellen skriver i samme stemme og vekter typene som blir valgt.
+  var STEMME_MAKS=12;
+  function stemmeNokkel(){return (profil.kunde||"").trim().toLowerCase()||"_standard";}
+  function alleStemmer(){try{return JSON.parse(les("hookfab_stemme")||"{}")||{};}catch(e){return {};}}
+  function stemme(){return alleStemmer()[stemmeNokkel()]||[];}
+  function husk(h){
+    var alle=alleStemmer(),n=stemmeNokkel();
+    var liste=(alle[n]||[]).filter(function(x){return x.tekst!==h.tekst;});
+    liste.unshift({tekst:h.tekst,type:h.type||""});
+    alle[n]=liste.slice(0,STEMME_MAKS);
+    skriv("hookfab_stemme",JSON.stringify(alle));
+    visStemme();
+    if(kode){
+      fetch("/api/kopiert",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({passord:kode,type:h.type||""})}).catch(function(){});
+    }
+  }
+  function glem(){var alle=alleStemmer();delete alle[stemmeNokkel()];skriv("hookfab_stemme",JSON.stringify(alle));visStemme();}
+  function visStemme(){
+    var s=stemme(),el=$("stemmeInfo");
+    if(!s.length){el.classList.add("skjult");return;}
+    var hvem=profil.kunde.trim()?"«"+esc(profil.kunde.trim())+"»":"denne kunden";
+    el.innerHTML="Husker stemmen til "+hvem+" fra "+s.length+" kopierte hook"+(s.length===1?"":"s")+" · <a class=\"lenke\" id=\"glemStemme\">nullstill</a>";
+    $("glemStemme").onclick=glem;
+    el.classList.remove("skjult");
+  }
+
+  // ---------- FANER ----------
+  function settFane(f){
+    fane=f;skriv("hookfab_fane",f);
+    document.querySelectorAll(".faner button").forEach(function(x){x.classList.toggle("aktiv",x.dataset.fane===f);});
+    $("fane-rask").classList.toggle("skjult",f!=="rask");
+    $("fane-skarp").classList.toggle("skjult",f!=="skarp");
+    oppdater();
+  }
+  document.querySelectorAll(".faner button").forEach(function(b){b.onclick=function(){settFane(b.dataset.fane);};});
+  function aktivType(){return fane==="rask"?"hooks":type;}
 
   // ---------- CHIPS ----------
   function byggChips(cid,valg,felt){
@@ -231,14 +291,14 @@
     var b=document.createElement("button");
     b.className=(type===t.id?"aktiv":"");
     b.innerHTML='<span class="navn">'+t.navn+'</span><span class="sub">'+t.sub+'</span>';
-    b.onclick=function(){type=t.id;Array.prototype.forEach.call(tv.children,function(c){c.classList.remove("aktiv");});b.classList.add("aktiv");};
+    b.onclick=function(){type=t.id;Array.prototype.forEach.call(tv.children,function(c){c.classList.remove("aktiv");});b.classList.add("aktiv");oppdater();};
     tv.appendChild(b);
   });
 
   // ---------- FELTER ----------
   ["kunde","navn","alder","kjonn","historie","produkt","malgruppe"].forEach(function(f){
     var el=$(f);el.value=profil[f]||"";
-    el.oninput=function(){profil[f]=el.value;lagre();oppdater();};
+    el.oninput=function(){profil[f]=el.value;lagre();oppdater();if(f==="kunde")visStemme();};
   });
 
   function settModus(m){
@@ -254,11 +314,16 @@
   settModus(profil.modus);
 
   function oppdater(){
-    var ok=profil.produkt.trim().length>0&&!laster;
-    $("genBtn").disabled=!ok;
-    $("hint").classList.toggle("skjult",profil.produkt.trim().length>0);
+    var harProdukt=profil.produkt.trim().length>0;
+    $("genBtn").disabled=!harProdukt||laster;
+    if(!laster)$("genBtn").textContent=aktivType()==="hooks"?(fane==="rask"?"Lag 8 hooks":"Lag 8 skarpere hooks"):"Generer";
+    $("hint").classList.toggle("skjult",harProdukt);
+    var p=profil.produkt.trim();
+    $("briefLinje").innerHTML=p
+      ?"Selger: <b>"+esc(p.length>70?p.slice(0,70)+"…":p)+"</b>"+(bilde?" + bilde":"")+" · <a id=\"tilRask\">endre</a>"
+      :"Start med hva som selges i <a id=\"tilRask\">Rask start</a>.";
+    $("tilRask").onclick=function(){settFane("rask");};
   }
-  oppdater();
 
   // ---------- BILDE ----------
   $("bildeboks").onclick=function(){$("bildeInput").click();};
@@ -273,6 +338,7 @@
       $("bildePreview").src=d;
       $("forhandsvis").classList.remove("skjult");
       $("bildeboks").classList.add("skjult");
+      oppdater();
     };
     r.readAsDataURL(f);
   };
@@ -280,6 +346,7 @@
     bilde=null;$("bildeInput").value="";
     $("forhandsvis").classList.add("skjult");
     $("bildeboks").classList.remove("skjult");
+    oppdater();
   };
 
   // ---------- HJELPERE ----------
@@ -295,10 +362,10 @@
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,d);}
     else{var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);d();}
   }
-  function kopierBtn(t){var b=document.createElement("button");b.className="kopier";b.textContent="Kopier";b.onclick=function(){kopier(t,b);};return b;}
+  function kopierBtn(t,etterpa){var b=document.createElement("button");b.className="kopier";b.textContent="Kopier";b.onclick=function(){kopier(t,b);if(etterpa)etterpa();};return b;}
 
   // ---------- RENDER ----------
-  function render(t,data){
+  function render(t,data,fraFane){
     var w=$("res");w.innerHTML="";w.classList.remove("skjult");
 
     if(t==="hooks"&&data.hooks){
@@ -307,7 +374,7 @@
       h.textContent="Slik ser de ut i feeden";
       var p=document.createElement("p");
       p.style.cssText="font-size:12px;color:rgba(2,44,34,.5);margin-bottom:16px;";
-      p.textContent="Første linje er alt folk ser før «…mer».";
+      p.textContent="Første linje er alt folk ser før «…mer». Hooks du kopierer, husker vi til neste gang.";
       w.appendChild(h);w.appendChild(p);
       var ini=(profil.navn||"D").trim().charAt(0).toUpperCase()||"D";
       data.hooks.forEach(function(x){
@@ -315,8 +382,14 @@
         k.innerHTML='<div class="avatarrad"><div class="avatar">'+esc(ini)+'</div><span class="brukernavn">'+esc(profil.navn||"din_konto")+'</span><span class="typetag">'+esc(x.type||"")+'</span></div>';
         var lin=document.createElement("div");lin.className="hooklinje";
         var pt=document.createElement("p");pt.innerHTML=esc(x.tekst)+' <span class="mer">…mer</span>';
-        lin.appendChild(pt);lin.appendChild(kopierBtn(x.tekst));
-        k.appendChild(lin);w.appendChild(k);
+        lin.appendChild(pt);lin.appendChild(kopierBtn(x.tekst,function(){husk(x);}));
+        k.appendChild(lin);
+        if(x.mekanisme){
+          var m=document.createElement("p");m.className="mekanisme";
+          m.innerHTML="<b>Hvorfor den virker:</b> "+esc(x.mekanisme);
+          k.appendChild(m);
+        }
+        w.appendChild(k);
       });
     }
 
@@ -347,6 +420,13 @@
       });
     }
 
+    if(fraFane==="rask"){
+      var sk=document.createElement("div");sk.className="skarpere";
+      sk.innerHTML="<b>Gjør dem skarpere →</b><p>Legg til historie, målgruppe og tone — eller lag bio og ferdige innlegg.</p>";
+      sk.onclick=function(){settFane("skarp");window.scrollTo({top:0,behavior:"smooth"});};
+      w.appendChild(sk);
+    }
+
     var ig=document.createElement("button");ig.className="igjen";ig.textContent="Generer nye varianter";
     ig.onclick=generer;w.appendChild(ig);
   }
@@ -354,6 +434,8 @@
   // ---------- GENERER ----------
   function generer(){
     if(laster||!profil.produkt.trim())return;
+    if(!kode){visKodeboks();$("kode").focus();return;}
+    var t=aktivType(),f=fane;
     laster=true;oppdater();
     $("genBtn").textContent="Skriver…";
     $("feil").classList.add("skjult");
@@ -361,30 +443,36 @@
 
     fetch("/api/generate",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({passord:passord,profil:profil,type:type,bilde:bilde})
+      body:JSON.stringify({passord:kode,profil:profil,type:t,bilde:bilde,stemme:stemme()})
     })
     .then(function(r){
-      if(r.status===401){throw new Error("passord");}
+      if(r.status===401){throw new Error("kode");}
       if(!r.ok)throw new Error("server");
       return r.json();
     })
     .then(function(d){
       if(d.error)throw new Error("server");
-      render(type,stripJson(d.tekst));
+      skriv("hookfab_kode",kode);
+      $("kodeboks").classList.add("skjult");
+      render(t,stripJson(d.tekst),f);
     })
     .catch(function(e){
-      var f=$("feil");
-      if(e.message==="passord"){
-        f.textContent="Feil passord. Last siden på nytt og prøv igjen.";
-        try{sessionStorage.removeItem("hookfab_pw");}catch(x){}
+      if(e.message==="kode"){
+        kode="";skriv("hookfab_kode",null);$("kode").value="";
+        visKodeboks("Den koden kjenner vi ikke. Sjekk den og prøv igjen.");
+        $("kode").focus();
       } else {
-        f.textContent="Noe gikk galt under genereringen. Prøv igjen.";
+        var fe=$("feil");
+        fe.textContent="Noe gikk galt under genereringen. Prøv igjen.";
+        fe.classList.remove("skjult");
       }
-      f.classList.remove("skjult");
     })
-    .then(function(){laster=false;oppdater();$("genBtn").textContent="Generer";});
+    .then(function(){laster=false;oppdater();});
   }
   $("genBtn").onclick=generer;
+
+  settFane(fane);
+  visStemme();
 })();
 </script>
 </body>

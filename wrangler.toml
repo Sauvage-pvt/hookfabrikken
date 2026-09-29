@@ -13,3 +13,9 @@ id = "d58db6f2dc704e73a2b058d5b2922b1b"
 
 [vars]
 KODER = "GR-01,GR-02,GR-03,GR-04,GR-05,GR-06,GR-07,GR-08,GR-09,GR-10"
+
+# Eget domene: kjøp domenet, legg det til som sone i Cloudflare, og fjern # under.
+# Workeren svarer da på domenet i tillegg til *.workers.dev.
+# [[routes]]
+# pattern = "hookfabrikken.no"
+# custom_domain = true
