@@ -148,6 +148,10 @@
         <button data-modus="bedrift">Bedrift</button>
       </div>
 
+      <p class="brief skjult" id="nyvariantKobling" style="margin-top:-6px;">
+        <a class="lenke" id="nyvariantLenke" target="_blank" rel="noopener">Lag en ny forside også, med Nyvariant →</a>
+      </p>
+
       <div class="gruppe">
         <label class="felt">Kunde / prosjekt</label>
         <input id="kunde" placeholder="F.eks. Fjellsport AS — stemmen huskes per kunde" />
@@ -346,8 +350,23 @@
   // ---------- FELTER ----------
   ["kunde","navn","alder","kjonn","historie","produkt","malgruppe"].forEach(function(f){
     var el=$(f);el.value=profil[f]||"";
-    el.oninput=function(){profil[f]=el.value;lagre();oppdater();if(f==="kunde")visStemme();};
+    el.oninput=function(){profil[f]=el.value;lagre();oppdater();if(f==="kunde")visStemme();if(f==="navn"||f==="produkt")oppdaterNyvariantLenke();};
   });
+
+  // Nyvariant bygger nye forsider for lokale bedrifter (kunde.html) — når vi er i
+  // bedrift-modus og har et bedriftsnavn, kan samme input gi en forside også.
+  // Domenet er en antagelse (samme workers.dev-mønster som denne siden); juster
+  // NYVARIANT_KUNDE om Nyvariant flyttes til eget domene.
+  var NYVARIANT_KUNDE="https://nyvariant.lenkemotor.workers.dev/kunde.html";
+  function oppdaterNyvariantLenke(){
+    var b=profil.modus==="bedrift",navn=profil.navn.trim();
+    $("nyvariantKobling").classList.toggle("skjult",!b||!navn);
+    if(b&&navn){
+      var p=new URLSearchParams({name:navn});
+      if(profil.produkt.trim())p.set("services",profil.produkt.trim().slice(0,60));
+      $("nyvariantLenke").href=NYVARIANT_KUNDE+"?"+p.toString();
+    }
+  }
 
   function settModus(m){
     profil.modus=m;lagre();
@@ -357,6 +376,7 @@
     $("lbl-navn").textContent=b?"Bedrift / merkevare":"Navn eller alias";
     $("navn").placeholder=b?"F.eks. Fjellsport AS":"F.eks. Per, 40";
     $("lbl-historie").textContent=b?"Historien bak bedriften":"Historie / bakgrunn";
+    oppdaterNyvariantLenke();
   }
   document.querySelectorAll(".modus button").forEach(function(b){b.onclick=function(){settModus(b.dataset.modus);};});
   settModus(profil.modus);
